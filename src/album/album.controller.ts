@@ -6,7 +6,7 @@ export class AlbumController {
   constructor(private readonly albumService: AlbumService) {}
 
   @Get()
-  getArtist(): string {
-    return this.albumService.getArtist();
+  getAlbum(): string {
+    return this.albumService.getAlbum();
   }
 }
