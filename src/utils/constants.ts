@@ -17,3 +17,7 @@ export const ALBUM_MESSAGES = {
   name_empty: 'The name cannot be empty',
   year_empty: 'The year cannot be empty',
 };
+
+export const HTTP_MESSAGES = {
+  no_content: 'No content',
+};
