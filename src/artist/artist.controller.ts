@@ -1,62 +1,49 @@
-import { Controller, NotFoundException } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
+import { ArtistService } from 'src/artist/artist.service';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
-import { DbService } from 'src/db/db.service';
-import { ArtistEntity } from 'src/entity/artist.entity';
 
 @Controller('artist')
 export class ArtistController {
-  constructor(private db: DbService) {}
+  constructor(private readonly artistService: ArtistService) {}
 
-  async getAll() {
-    return this.db.artists;
+  @Get()
+  getAll() {
+    return this.artistService.getAll();
   }
 
-  async getById(id: string) {
-    const artistById = this.db.artists.find((artist) => artist.id === id);
-
-    if (!artistById) {
-      throw new NotFoundException(`Artist with id ${id} not exist`);
-    }
-
-    return artistById;
+  @Get(':id')
+  getById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.artistService.getById(id);
   }
 
-  async create(createArtistDto: CreateArtistDto): Promise<ArtistEntity> {
-    const newArtist = new ArtistEntity(createArtistDto);
-    this.db.artists.push(newArtist);
-
-    return newArtist;
+  @Post()
+  create(@Body() createArtistDto: CreateArtistDto) {
+    return this.artistService.create(createArtistDto);
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto) {
-    const artistById = await this.getById(id);
-
-    console.log(`This EP updates artist with id: ${id}`, artistById);
-    artistById.name = updateArtistDto.name;
-    artistById.grammy = updateArtistDto.grammy;
-    return artistById;
+  @Put(':id')
+  update(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Body() updateArtistDto: UpdateArtistDto,
+  ) {
+    return this.artistService.update(id, updateArtistDto);
   }
 
-  async remove(id: string) {
-    this.getById(id);
-
-    this.db.tracks.forEach((track) => {
-      if (track.artistId === id) {
-        track.artistId = null;
-      }
-    });
-
-    this.db.albums.forEach((album) => {
-      if (album.artistId === id) {
-        album.artistId = null;
-      }
-    });
-
-    this.db.favorites.artists = this.db.favorites.artists.filter(
-      (storeId) => storeId.id !== id,
-    );
-
-    this.db.artists = this.db.artists.filter((artist) => artist.id !== id);
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.artistService.remove(id);
   }
 }

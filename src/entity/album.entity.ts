@@ -7,7 +7,7 @@ export class AlbumEntity implements AlbumType {
   year: number;
   artistId: string | null;
 
-  constructor({ name, year, artistId }: AlbumEntity) {
+  constructor({ name, year, artistId }: Partial<AlbumEntity>) {
     this.id = uuidV4();
     this.name = name;
     this.year = year;

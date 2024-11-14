@@ -27,7 +27,6 @@ export class ArtistService {
   async update(id: string, updateArtistDto: UpdateArtistDto) {
     const artistById = await this.getById(id);
 
-    console.log(`This EP updates artist with id: ${id}`, artistById);
     artistById.name = updateArtistDto.name;
     artistById.grammy = updateArtistDto.grammy;
 

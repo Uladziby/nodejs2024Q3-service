@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ArtistModule } from 'src/artist/artist.module';
 import { UserModule } from './user/user.module';
 import { AlbumModule } from './album/album.module';
@@ -10,14 +8,14 @@ import { DbModule } from 'src/db/db.module';
 
 @Module({
   imports: [
-    ArtistModule,
     UserModule,
-    AlbumModule,
     TrackModule,
-    DbModule,
     FavoriteModule,
+    ArtistModule,
+    AlbumModule,
+    DbModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
