@@ -4,8 +4,8 @@ import { ArtistService } from 'src/artist/artist.service';
 import { DbModule } from 'src/db/db.module';
 
 @Module({
-  imports: [DbModule],
   controllers: [ArtistController],
   providers: [ArtistService],
+  imports: [DbModule],
 })
 export class ArtistModule {}

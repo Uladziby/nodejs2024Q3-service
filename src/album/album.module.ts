@@ -4,8 +4,8 @@ import { AlbumService } from 'src/album/album.service';
 import { DbModule } from 'src/db/db.module';
 
 @Module({
-  imports: [DbModule],
   controllers: [AlbumController],
   providers: [AlbumService],
+  imports: [DbModule],
 })
 export class AlbumModule {}

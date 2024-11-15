@@ -32,7 +32,7 @@ export class AlbumService {
 
     if (!existArtist && createAlbumDto.artistId) {
       throw new NotFoundException(
-        `Artist with id ${createAlbumDto.artistId} not exist`,
+        `Artist ${createAlbumDto.artistId} not exist`,
       );
     }
     const album = new AlbumEntity(createAlbumDto);
