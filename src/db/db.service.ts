@@ -19,7 +19,11 @@ export class DbService {
   albums: Array<AlbumType> = [];
   artists: Array<ArtistType> = [];
   tracks: Array<TrackType> = [];
-  favorites: FavoriteType;
+  favorites: FavoriteType = {
+    artists: [],
+    albums: [],
+    tracks: [],
+  };
 
   checkEntity(entityId: string, dbEntityType: Entites): boolean {
     const dbEntity: DbEntities = this[dbEntityType];

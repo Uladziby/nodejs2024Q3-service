@@ -21,7 +21,7 @@ export class UserService {
     const userById = this.db.users.find((user) => user.id === id);
 
     if (!userById) {
-      throw new NotFoundException(`User with id ${id} not exist`);
+      throw new NotFoundException(`User ${id} doesn't exist`);
     }
 
     return userById;
@@ -33,7 +33,7 @@ export class UserService {
     );
     if (existUser) {
       throw new HttpException(
-        `User with login ${createUserDto.login} already exist!`,
+        `User ${createUserDto.login} already exist!`,
         HttpStatus.CONFLICT,
       );
     }

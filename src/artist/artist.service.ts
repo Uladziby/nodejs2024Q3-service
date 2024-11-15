@@ -7,47 +7,55 @@ import { ArtistEntity } from 'src/entity/artist.entity';
 @Injectable()
 export class ArtistService {
   constructor(private db: DbService) {}
-  async getAll() {
+
+  getAll() {
     return this.db.artists;
   }
-  async getById(id: string) {
-    const artistById = this.db.artists.find((artist) => artist.id === id);
-    if (!artistById) {
-      throw new NotFoundException(`Artist with id ${id} not exist`);
+
+  getById(id: string) {
+    const artist = this.db.artists.find((artist) => artist.id === id);
+
+    if (!artist) {
+      throw new NotFoundException(`Artist doesnot exist`);
     }
-    return artistById;
+
+    return artist;
   }
-  async create(createArtistDto: CreateArtistDto): Promise<ArtistEntity> {
+
+  create(createArtistDto: CreateArtistDto) {
     const newArtist = new ArtistEntity(createArtistDto);
     this.db.artists.push(newArtist);
 
     return newArtist;
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto) {
-    const artistById = await this.getById(id);
-
+  update(id: string, updateArtistDto: UpdateArtistDto) {
+    const artistById = this.getById(id);
     artistById.name = updateArtistDto.name;
     artistById.grammy = updateArtistDto.grammy;
 
     return artistById;
   }
 
-  async remove(id: string) {
+  remove(id: string) {
     this.getById(id);
+
     this.db.tracks.forEach((track) => {
       if (track.artistId === id) {
         track.artistId = null;
       }
     });
+
     this.db.albums.forEach((album) => {
       if (album.artistId === id) {
         album.artistId = null;
       }
     });
+
     this.db.favorites.artists = this.db.favorites.artists.filter(
-      (storeId) => storeId.id !== id,
+      (artist) => artist.id !== id,
     );
+
     this.db.artists = this.db.artists.filter((artist) => artist.id !== id);
   }
 }
