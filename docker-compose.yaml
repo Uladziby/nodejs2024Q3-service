@@ -1,0 +1,36 @@
+services:
+  database:
+    build: ./database/
+    container_name: 'db_home_library'
+    restart: always
+    volumes:
+      - db_storage_data:/var/lib/postresql/data
+    network:
+      - internal
+    env_file:
+      - .env
+    command: ['postgres', '-c', 'port=$DB_PORT', '-c', 'log_statement=all']
+
+  app:
+    build: .
+    container_name: 'app'
+    ports:
+      - '$PORT:$PORT'
+    tty: true
+    stdin_open: true
+    depends_on:
+      - database
+    restart: on-failure
+    networks:
+      - internal
+    env_file:
+      - .env
+
+volumes:
+  db_storage_data:
+    driver: local
+
+networks:
+  internal:
+    driver: bridge
+    name: 'internal'
