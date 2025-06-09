@@ -1,38 +1,43 @@
 services:
-  database:
-    build: ./database/
+  postgres:
     container_name: 'db_home_library'
+    image: postgres:15.3-alpine
     ports:
-      - '$POSTGRES_PORT:$POSTGRES_PORT'
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
     volumes:
-      - db_storage_data:/var/lib/postresql/data
+      - db_storage_data:/var/lib/postgresql/data
     restart: always
-    network:
-      - internal
-    env_file:
-      - .env
-    command: ['postgres', '-c', 'port=$DB_PORT', '-c', 'log_statement=all']
+    networks:
+      - home-library-network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
+    build: .
     container_name: 'app'
-    image: uladziby/nodejs2024q3-service-app
     ports:
-      - '$PORT:$PORT'
-    stdin_open: true
+      - '${PORT}:${PORT}'
     volumes:
       - .:/app
     depends_on:
-      - postgres-db
-    command: npm run start:docker:dev
+      postgres:
+        condition: service_healthy
     restart: on-failure
     env_file:
       - .env
     networks:
-      - app-db-network
-
-networks:
-  app-db-network:
-    driver: bridge
+      - home-library-network
 
 volumes:
-  dbdata:
+  db_storage_data:
+    driver: local
+
+networks:
+  home-library-network:
+    driver: bridge
