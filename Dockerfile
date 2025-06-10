@@ -1,19 +1,22 @@
-FROM node:22 as build
+FROM node:22-alpine  as development
 
 WORKDIR /app
 
-COPY package*.json .
+COPY package*.json ./
 
 RUN npm install
-
 COPY . .
+RUN npm run build
 
-FROM node:22-alpine
+EXPOSE 4000
 
+ENV NODE_ENV production
+RUN npm install --only=production && npm cache clean --force
+
+FROM node:22-alpine As production
 WORKDIR /app
 
-COPY --from=build /app /app
+COPY --from=development /app/dist ./dist
+COPY --from=development /app/node_modules ./node_modules
 
-EXPOSE $PORT
-
-CMD ["npm", "run", "start:dev:migrate"]
+CMD ["npm", "run", "start:docker:prod"]

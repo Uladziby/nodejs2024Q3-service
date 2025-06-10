@@ -19,7 +19,7 @@
 
 1. Install and run [Docker](https://docs.docker.com/engine/install/)
 2. Log in and launch the Docker Desktop application.
-3. Execute command `docker-compose up --build` or commands `docker-compose build` and `docker-compose up` sequentially.
+3. Execute command `docker:build` or commands `docker-compose build` and `docker-compose up` sequentially.
 
 \_Note: Restarting Nest when code changes take about 1 minute
 

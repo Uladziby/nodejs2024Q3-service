@@ -20,7 +20,7 @@ services:
 
   app:
     build: .
-    container_name: 'app'
+    container_name: 'home-library-app'
     ports:
       - '${PORT}:${PORT}'
     volumes:

@@ -17,7 +17,7 @@ const HOST =
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
+      host: ' HOST',
       port: Number(env.POSTGRES_PORT),
       database: env.POSTGRES_DB_NAME,
       username: env.POSTGRES_USER,
