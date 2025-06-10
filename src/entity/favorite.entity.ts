@@ -1,22 +1,33 @@
-import { UserType } from '../user/dto/user.interface';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsUUID, IsOptional } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { AbstractEntity } from 'src/abstarct/abstarct.entity';
 import { UserEntity } from 'src/entity/user.entity';
+import { Column, Entity, JoinTable, ManyToMany } from 'typeorm';
+import { ArtistEntity } from 'src/entity/artist.entity';
+import { AlbumEntity } from 'src/entity/album.entity';
+import { TrackEntity } from 'src/entity/track.entity';
 
-export class FavoriteEntity implements UserType {
-  id: string;
-  login: string;
-  version: number;
-  createdAt: Date;
-  updatedAt: Date;
-
+@Entity({ name: 'favorites' })
+export class FavoriteEntity extends AbstractEntity<FavoriteEntity> {
+  @Column('uuid')
+  @IsUUID(4)
+  @IsOptional()
   @Exclude()
-  password: string;
+  userId: UserEntity['id'];
 
-  constructor(user: Partial<UserEntity>) {
-    this.login = user?.login;
-    this.password = user?.password;
-    this.version = 1;
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
-  }
+  @ManyToMany(() => ArtistEntity, { eager: true })
+  @JoinTable()
+  @ApiProperty({ type: [ArtistEntity] })
+  artists: ArtistEntity[];
+
+  @ManyToMany(() => AlbumEntity, { eager: true })
+  @JoinTable()
+  @ApiProperty({ type: [AlbumEntity] })
+  albums: AlbumEntity[];
+
+  @ManyToMany(() => TrackEntity, { eager: true })
+  @JoinTable()
+  @ApiProperty({ type: [TrackEntity] })
+  tracks: TrackEntity[];
 }

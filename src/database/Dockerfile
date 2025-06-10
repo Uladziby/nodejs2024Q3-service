@@ -1,6 +1,6 @@
-FROM postgres:16.2-alpine3.19
+FROM postgres:16.9-alpine3.20
 
-ENV POSTGRES_DB db_home_library
+ENV POSTGRES_DB_NAME=db_home_library
 ENV POSTGRES_USER postgres
 ENV POSTGRES_PASSWORD 7postgres7
 
