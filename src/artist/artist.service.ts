@@ -1,63 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Subject } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
-import { DbService } from 'src/db/db.service';
-import { ArtistEntity } from 'src/entity/artist.entity';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class ArtistService {
-  @InjectRepository(ArtistEntity)
-  declare repository: Repository<ArtistEntity>;
-
-  protected deleteEvent = new Subject<ArtistEntity['id']>();
-  public delete$ = this.deleteEvent.asObservable();
-
-  constructor(private db: DbService) {}
+  getArtist(): string {
+    return 'Hello Artist!';
+  }
 
   getAll() {
-    return this.repository.find();
+    return 'This EP return all users!';
   }
 
-  async findOne(id: string): Promise<ArtistEntity | null> {
-    return this.repository.findOneBy({ id });
+  getById(id: number) {
+    return `This EP returns artist with id: ${id}`;
   }
 
-  async getById(id: string) {
-    const artistById = await this.repository.findOneBy({ id });
-
-    if (!artistById) {
-      throw new NotFoundException(`Artist with id ${id} not exist`);
-    }
-
-    return artistById;
+  create(createArtistDto: CreateArtistDto) {
+    return 'This EP creates a new artist!';
   }
 
-  async create(createArtistDto: CreateArtistDto) {
-    const newArtist = new ArtistEntity(createArtistDto);
-    await this.repository.save(newArtist);
-
-    return newArtist;
+  update(id: number, updateArtistDto: UpdateArtistDto) {
+    return `This EP updates artist with id: ${id}`;
   }
 
-  async update(id: string, updateArtistDto: UpdateArtistDto) {
-    await this.getById(id);
-
-    return this.repository
-      .preload({ id, ...updateArtistDto })
-      .then((artist) => {
-        return artist ? this.repository.save(artist) : artist;
-      });
-  }
-
-  async remove(id: string): Promise<boolean> {
-    await this.getById(id);
-
-    return this.repository.findOneBy({ id }).then(async (artist) => {
-      this.deleteEvent.next(id);
-      return artist ? !!(await this.repository.remove(artist)) : false;
-    });
+  remove(id: number) {
+    return `This EP removes artist with id: ${id}`;
   }
 }

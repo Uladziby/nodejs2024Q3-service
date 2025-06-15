@@ -1,66 +1,26 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  forwardRef,
-} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Subject } from 'rxjs';
-import { AlbumType } from 'src/album/dto/album.interface';
+import { Injectable } from '@nestjs/common';
 import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { UpdateAlbumDto } from 'src/album/dto/update-album';
-import { DbService, Entites } from 'src/db/db.service';
-import { AlbumEntity } from 'src/entity/album.entity';
-import { TrackType } from 'src/track/dto/track.interface';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class AlbumService {
-  @InjectRepository(AlbumEntity)
-  declare repository: Repository<AlbumEntity>;
-  protected deleteEvent = new Subject<AlbumEntity['id']>();
-
-  constructor(private db: DbService) {}
-
-  getAll() {
-    return this.repository.find();
+  getAll(): string {
+    return 'This EP return all albums!';
   }
 
-  async findOne(id: string): Promise<AlbumEntity | null> {
-    return this.repository.findOneBy({ id });
+  getById(id: number): string {
+    return `This EP returns album with id: ${id}`;
   }
 
-  async getById(id: string) {
-    const albumById = await this.repository.findOneBy({ id });
-
-    if (!albumById) {
-      throw new NotFoundException(`Album with id ${id} not exist`);
-    }
-
-    return albumById;
+  create(createAlbumDto: CreateAlbumDto): string {
+    return 'This EP creates a new album';
   }
 
-  async create(createAlbumDto: CreateAlbumDto) {
-    const newAlbum = new AlbumEntity(createAlbumDto);
-    await this.repository.save(newAlbum);
-
-    return newAlbum;
+  update(id: number, updateAlbumDto: UpdateAlbumDto) {
+    return `This EP updates album with id: ${id}`;
   }
 
-  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    await this.getById(id);
-
-    return this.repository.preload({ id, ...updateAlbumDto }).then((album) => {
-      return album ? this.repository.save(album) : album;
-    });
-  }
-
-  async remove(id: string) {
-    await this.getById(id);
-
-    return this.findOne(id).then(async (album) => {
-      this.deleteEvent.next(id);
-      return album ? !!(await this.repository.remove(album)) : false;
-    });
+  remove(id: number) {
+    return `This EP removes album with id: ${id}`;
   }
 }
