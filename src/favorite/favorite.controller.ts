@@ -8,55 +8,79 @@ import {
   ParseUUIDPipe,
   Post,
 } from '@nestjs/common';
+import { UserEntity } from 'src/entity/user.entity';
 import { FavoriteService } from 'src/favorite/favorite.service';
 
 @Controller('favs')
 export class FavoriteController {
+  protected blank_user: UserEntity['id'] =
+    'd323327d-cea8-4f42-8730-5221222361de';
   constructor(private readonly favoriteService: FavoriteService) {}
 
-  @Get()
-  getAll() {
-    return this.favoriteService.getAll();
+  protected async getUserFavorite() {
+    return this.favoriteService.getFavsByUser(this.blank_user);
   }
 
   @Post('track/:id')
-  addTrackToFavs(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.favoriteService.addTrackToFavs(id);
+  async addTrackToFavs(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.favoriteService.addTrackToFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 
   @Post('album/:id')
-  addAlbumToFavs(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
-    return this.favoriteService.addAlbumToFavs(id);
+  async addAlbumToFavs(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+  ) {
+    return this.favoriteService.addAlbumToFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 
   @Post('artist/:id')
-  addArtistToFavs(
+  async addArtistToFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.addArtistToFavs(id);
+    return this.favoriteService.addArtistToFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 
   @Delete('track/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeTrackFromFavs(
+  async removeTrackFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeTrackFromFavs(id);
+    return this.favoriteService.removeTrackFromFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 
   @Delete('album/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeAlbumFromFavs(
+  async removeAlbumFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeAlbumFromFavs(id);
+    return this.favoriteService.removeAlbumFromFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 
   @Delete('artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  removeArtistFromFavs(
+  async removeArtistFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeArtistFromFavs(id);
+    return this.favoriteService.removeArtistFromFavs(
+      await this.getUserFavorite(),
+      id,
+    );
   }
 }

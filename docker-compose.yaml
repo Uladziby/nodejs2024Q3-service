@@ -1,0 +1,43 @@
+services:
+  postgres:
+    container_name: 'db_home_library'
+    image: postgres:15.3-alpine
+    ports:
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    volumes:
+      - db_storage_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - home-library-network
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: 'home-library-app'
+    ports:
+      - '${PORT}:${PORT}'
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+    env_file:
+      - .env
+    networks:
+      - home-library-network
+
+volumes:
+  db_storage_data:
+    driver: local
+
+networks:
+  home-library-network:
+    driver: bridge
