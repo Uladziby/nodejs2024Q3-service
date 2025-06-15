@@ -12,6 +12,7 @@ export class CreateAlbumDto {
   @IsString({ message: ALBUM_MESSAGES.name_string })
   name: string;
 
+  @IsInt()
   @IsNotEmpty({ message: ALBUM_MESSAGES.name_empty })
   @IsInt({ message: ALBUM_MESSAGES.year_number })
   year: number;
