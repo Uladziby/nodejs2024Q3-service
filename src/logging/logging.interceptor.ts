@@ -16,6 +16,29 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = context.switchToHttp().getRequest<IncomingMessage>();
     const response = context.switchToHttp().getResponse<ServerResponse>();
 
+    request.headers['x-intercepted'] = 'true';
+
+    this.logger.log(
+      `Incoming Request: ` +
+        JSON.stringify({
+          controller: context.getClass()?.name,
+          method: request.method,
+          url: request.url,
+          params: request['params'] || '',
+          body: request['body'] || '',
+        }),
+    );
+
+    response.once('finish', () => {
+      this.logger.log(
+        'Server Response: ' +
+          JSON.stringify({
+            status: response.statusCode,
+            message: response.statusMessage,
+          }),
+      );
+    });
+
     return next.handle().pipe();
   }
 }

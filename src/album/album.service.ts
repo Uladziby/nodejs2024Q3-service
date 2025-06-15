@@ -1,26 +1,74 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { AlbumType } from 'src/album/dto/album.interface';
 import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { UpdateAlbumDto } from 'src/album/dto/update-album';
+import { DbEntities, DbService } from 'src/db/db.service';
+import { AlbumEntity } from 'src/entity/album.entity';
+import { TrackType } from 'src/track/dto/track.interface';
 
 @Injectable()
 export class AlbumService {
-  getAll(): string {
-    return 'This EP return all albums!';
+  constructor(private db: DbService) {}
+
+  getAll() {
+    return this.db.albums;
   }
 
-  getById(id: number): string {
-    return `This EP returns album with id: ${id}`;
+  getById(id: string) {
+    const albumById = this.db.albums.find((album) => album.id === id);
+
+    if (!albumById) {
+      throw new NotFoundException(`Album with id ${id} not exist`);
+    }
+
+    return albumById;
   }
 
-  create(createAlbumDto: CreateAlbumDto): string {
-    return 'This EP creates a new album';
+  create(createAlbumDto: CreateAlbumDto) {
+    const existArtist = this.db.checkEntity(
+      createAlbumDto.artistId,
+      DbEntities.ARTISTS,
+    );
+
+    if (!existArtist && createAlbumDto.artistId) {
+      throw new NotFoundException(
+        `Artist ${createAlbumDto.artistId} not exist`,
+      );
+    }
+    const album = new AlbumEntity(createAlbumDto);
+    this.db.albums.push(album);
+
+    return album;
   }
 
-  update(id: number, updateAlbumDto: UpdateAlbumDto) {
-    return `This EP updates album with id: ${id}`;
+  update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    const albumById = this.getById(id);
+    const existArtist = this.db.checkEntity(
+      updateAlbumDto.artistId,
+      DbEntities.ARTISTS,
+    );
+    if (!existArtist && updateAlbumDto.artistId) {
+      throw new NotFoundException(
+        `Artist with id ${updateAlbumDto.artistId} not exist`,
+      );
+    }
+    albumById.artistId = updateAlbumDto.artistId;
+    albumById.name = updateAlbumDto.name;
+    albumById.year = updateAlbumDto.year;
+
+    return albumById;
   }
 
-  remove(id: number) {
-    return `This EP removes album with id: ${id}`;
+  remove(id: string) {
+    this.getById(id);
+    this.db.tracks.forEach((track: TrackType) => {
+      if (track.albumId === id) {
+        track.albumId = null;
+      }
+    });
+    this.db.favorites.albums = this.db.favorites.albums.filter(
+      (album: AlbumType) => album.id !== id,
+    );
+    this.db.albums = this.db.albums.filter((album) => album.id !== id);
   }
 }

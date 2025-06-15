@@ -5,8 +5,8 @@ import { FavoriteType } from 'src/favorite/favorite.interface';
 import { TrackType } from 'src/track/dto/track.interface';
 import { UserType } from 'src/user/dto/user.interface';
 
-export type DbEntities = (AlbumType | ArtistType | TrackType | UserType)[];
-export enum Entites {
+export type TDbEntities = (AlbumType | ArtistType | TrackType | UserType)[];
+export enum DbEntities {
   ALBUMS = 'albums',
   ARTISTS = 'artists',
   TRACKS = 'tracks',
@@ -25,8 +25,8 @@ export class DbService {
     tracks: [],
   };
 
-  checkEntity(entityId: string, dbEntityType: Entites): boolean {
-    const dbEntity: DbEntities = this[dbEntityType];
+  checkEntity(entityId: string, dbEntityType: DbEntities): boolean {
+    const dbEntity: TDbEntities = this[dbEntityType];
     const existEntityId = dbEntity.find((entity) => entity.id === entityId);
 
     return existEntityId ? true : false;

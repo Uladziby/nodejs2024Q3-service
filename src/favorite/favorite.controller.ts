@@ -17,70 +17,49 @@ export class FavoriteController {
     'd323327d-cea8-4f42-8730-5221222361de';
   constructor(private readonly favoriteService: FavoriteService) {}
 
-  protected async getUserFavorite() {
-    return this.favoriteService.getFavsByUser(this.blank_user);
+  @Get()
+  getAll() {
+    return this.favoriteService.getAll();
   }
 
   @Post('track/:id')
-  async addTrackToFavs(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ) {
-    return this.favoriteService.addTrackToFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+  addTrackToFavs(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.favoriteService.addTrackToFavs(id);
   }
 
   @Post('album/:id')
-  async addAlbumToFavs(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
-  ) {
-    return this.favoriteService.addAlbumToFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+  addAlbumToFavs(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    return this.favoriteService.addAlbumToFavs(id);
   }
 
   @Post('artist/:id')
-  async addArtistToFavs(
+  addArtistToFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.addArtistToFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+    return this.favoriteService.addArtistToFavs(id);
   }
 
   @Delete('track/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async removeTrackFromFavs(
+  @HttpCode(HttpStatus.NO_CONTENT) // 204
+  removeTrackFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeTrackFromFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+    return this.favoriteService.removeTrackFromFavs(id);
   }
 
   @Delete('album/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async removeAlbumFromFavs(
+  @HttpCode(HttpStatus.NO_CONTENT) // 204
+  removeAlbumFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeAlbumFromFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+    return this.favoriteService.removeAlbumFromFavs(id);
   }
 
   @Delete('artist/:id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async removeArtistFromFavs(
+  @HttpCode(HttpStatus.NO_CONTENT) // 204
+  removeArtistFromFavs(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
   ) {
-    return this.favoriteService.removeArtistFromFavs(
-      await this.getUserFavorite(),
-      id,
-    );
+    return this.favoriteService.removeArtistFromFavs(id);
   }
 }
