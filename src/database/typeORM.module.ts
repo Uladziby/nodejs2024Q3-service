@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { env } from 'process';
+import { UserEntity } from 'src/entity/user.entity';
+import { TrackEntity } from 'src/entity/track.entity';
 import { AlbumEntity } from 'src/entity/album.entity';
 import { ArtistEntity } from 'src/entity/artist.entity';
 import { FavoriteEntity } from 'src/entity/favorite.entity';
-import { TrackEntity } from 'src/entity/track.entity';
-import { UserEntity } from 'src/entity/user.entity';
 import 'dotenv/config';
 
 const HOST =
@@ -30,7 +30,7 @@ const HOST =
         FavoriteEntity,
       ],
       synchronize: false,
-      logging: false,
+      logging: true,
     }),
   ],
 })

@@ -1,21 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { AlbumType } from 'src/album/dto/album.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Subject } from 'rxjs';
 import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { UpdateAlbumDto } from 'src/album/dto/update-album';
-import { DbEntities, DbService } from 'src/db/db.service';
 import { AlbumEntity } from 'src/entity/album.entity';
-import { TrackType } from 'src/track/dto/track.interface';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AlbumService {
-  constructor(private db: DbService) {}
+  @InjectRepository(AlbumEntity)
+  declare repository: Repository<AlbumEntity>;
 
-  getAll() {
-    return this.db.albums;
+  protected deleteEvent = new Subject<AlbumEntity['id']>();
+  public delete$ = this.deleteEvent.asObservable();
+
+  async getAll() {
+    return this.repository.find();
   }
 
-  getById(id: string) {
-    const albumById = this.db.albums.find((album) => album.id === id);
+  async findOne(id: string): Promise<AlbumEntity | null> {
+    return this.repository.findOneBy({ id });
+  }
+
+  async getById(id: string) {
+    const albumById = await this.repository.findOneBy({ id });
 
     if (!albumById) {
       throw new NotFoundException(`Album with id ${id} not exist`);
@@ -24,51 +32,27 @@ export class AlbumService {
     return albumById;
   }
 
-  create(createAlbumDto: CreateAlbumDto) {
-    const existArtist = this.db.checkEntity(
-      createAlbumDto.artistId,
-      DbEntities.ARTISTS,
-    );
+  async create(createAlbumDto: CreateAlbumDto) {
+    const newAlbum = new AlbumEntity(createAlbumDto);
+    await this.repository.save(newAlbum);
 
-    if (!existArtist && createAlbumDto.artistId) {
-      throw new NotFoundException(
-        `Artist ${createAlbumDto.artistId} not exist`,
-      );
-    }
-    const album = new AlbumEntity(createAlbumDto);
-    this.db.albums.push(album);
-
-    return album;
+    return newAlbum;
   }
 
-  update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    const albumById = this.getById(id);
-    const existArtist = this.db.checkEntity(
-      updateAlbumDto.artistId,
-      DbEntities.ARTISTS,
-    );
-    if (!existArtist && updateAlbumDto.artistId) {
-      throw new NotFoundException(
-        `Artist with id ${updateAlbumDto.artistId} not exist`,
-      );
-    }
-    albumById.artistId = updateAlbumDto.artistId;
-    albumById.name = updateAlbumDto.name;
-    albumById.year = updateAlbumDto.year;
+  async update(id: string, updateAlbumDto: UpdateAlbumDto) {
+    await this.getById(id);
 
-    return albumById;
-  }
-
-  remove(id: string) {
-    this.getById(id);
-    this.db.tracks.forEach((track: TrackType) => {
-      if (track.albumId === id) {
-        track.albumId = null;
-      }
+    return this.repository.preload({ id, ...updateAlbumDto }).then((album) => {
+      return album ? this.repository.save(album) : album;
     });
-    this.db.favorites.albums = this.db.favorites.albums.filter(
-      (album: AlbumType) => album.id !== id,
-    );
-    this.db.albums = this.db.albums.filter((album) => album.id !== id);
+  }
+
+  async remove(id: string) {
+    await this.getById(id);
+
+    return this.findOne(id).then(async (album) => {
+      this.deleteEvent.next(id);
+      return album ? !!(await this.repository.remove(album)) : false;
+    });
   }
 }

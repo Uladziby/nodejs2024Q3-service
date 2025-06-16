@@ -10,11 +10,14 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ArtistService } from 'src/artist/artist.service';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { UpdateArtistDto } from 'src/artist/dto/update-artist.dto';
 
 @Controller('artist')
+@ApiTags('Artists')
+@ApiBearerAuth()
 export class ArtistController {
   constructor(private readonly artistService: ArtistService) {}
 
@@ -24,11 +27,13 @@ export class ArtistController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get artist by ID' })
   async getById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
     return this.artistService.getById(id);
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create artist' })
   async create(@Body() createArtistDto: CreateArtistDto) {
     return this.artistService.create(createArtistDto);
   }

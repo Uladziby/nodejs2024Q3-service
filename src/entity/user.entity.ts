@@ -1,6 +1,7 @@
 import { Exclude, Transform } from 'class-transformer';
 import { UserType } from 'src/user/dto/user.interface';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -16,6 +17,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { HashService } from 'src/common/hash.service';
 
 @Entity({ name: 'user' })
 export class UserEntity implements UserType {
@@ -23,6 +25,21 @@ export class UserEntity implements UserType {
   @IsUUID(4)
   @ApiProperty({ format: 'uuid' })
   id: string;
+
+  @Column()
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty()
+  login: string;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await HashService.hash(this.password);
+  }
+
+  async checkPassword(password) {
+    return await HashService.compare(password, this.password);
+  }
 
   @Column()
   @IsString()
@@ -59,7 +76,6 @@ export class UserEntity implements UserType {
     this.createdAt = new Date();
     this.updatedAt = new Date();
   }
-  login: string;
 }
 
 export class UserResponse {

@@ -7,8 +7,12 @@ const PORT = process.env.PORT || 4000;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
-
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      strictGroups: true,
+    }),
+  );
   await setupSwagger(app);
 
   await app.listen(PORT, () =>
