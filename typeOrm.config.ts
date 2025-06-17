@@ -1,10 +1,10 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
-import { UserEntity } from 'src/entity/user.entity';
-import { AlbumEntity } from 'src/entity/album.entity';
-import { ArtistEntity } from 'src/entity/artist.entity';
-import { FavoriteEntity } from 'src/entity/favorite.entity';
-import { TrackEntity } from 'src/entity/track.entity';
+import { AlbumEntity } from './src/entity/album.entity';
+import { ArtistEntity } from './src/entity/artist.entity';
+import { FavoriteEntity } from './src/entity/favorite.entity';
+import { TrackEntity } from './src/entity/track.entity';
+import { UserEntity } from './src/entity/user.entity';
 
 const HOST =
   process.env.NODE_ENV === 'docker'

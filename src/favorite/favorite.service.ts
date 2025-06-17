@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { validate } from 'class-validator';
-import { AbstractService } from 'src/abstarct/abstarct.service';
 import { AlbumService } from 'src/album/album.service';
 import { ArtistService } from 'src/artist/artist.service';
+import { AbstractService } from 'src/abstract/abstract.service';
 import { FavoriteEntity } from 'src/entity/favorite.entity';
 import { TrackService } from 'src/track/track.service';
 import { Repository } from 'typeorm';

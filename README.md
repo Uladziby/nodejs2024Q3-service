@@ -9,7 +9,7 @@
 ## Installation process
 
 1. Clone the repository:
-   `git clone https://github.com/KuzmakD/nodejs2024Q3-service.git/tree/part2`
+   `git clone https://github.com/Uladziby/nodejs2024Q3-service/tree/part-3`
 2. Install all npm modules `npm install`
 3. Create the .env file using [example](.env.example);
 
@@ -28,7 +28,7 @@
 _If you haven't encountered any issues with Docker, you can skip this step_
 
 1. Install [Postgres](https://www.postgresql.org/download/)
-2. Create a database with name `rss_node_service` (use PostgreSQL 16).
+2. Create a database with name `home_library_3` (use PostgreSQL 16).
 3. Apply migrations `npm run migration:update`
 4. Start the server `npm start`
 
@@ -47,20 +47,4 @@ To run all tests without authorization
 
 ```
 npm run test
-```
-
-To run only one of all test suites
-
-```
-npm run test -- <path to suite>
-```
-
-### Auto-fix and format
-
-```
-npm run lint
-```
-
-```
-npm run format
 ```

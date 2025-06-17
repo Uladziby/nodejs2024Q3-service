@@ -17,7 +17,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { HashService } from 'src/common/hash.service';
+import { HashService } from '../common/hash.service';
 
 @Entity({ name: 'user' })
 export class UserEntity implements UserType {
