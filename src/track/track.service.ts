@@ -1,91 +1,61 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { DbService, Entites } from 'src/db/db.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { validate } from 'class-validator';
+import { Subject } from 'rxjs';
 import { TrackEntity } from 'src/entity/track.entity';
 import { CreateTrackDto } from 'src/track/dto/create-track.dto';
-import { TrackType } from 'src/track/dto/track.interface';
 import { UpdateTrackDto } from 'src/track/dto/update-track.dto';
+import { DeepPartial, Repository } from 'typeorm';
 
 @Injectable()
 export class TrackService {
-  constructor(private db: DbService) {}
+  @InjectRepository(TrackEntity)
+  declare repository: Repository<TrackEntity>;
 
-  getAll() {
-    return this.db.tracks;
+  protected deleteEvent = new Subject<TrackEntity['id']>();
+  public delete$ = this.deleteEvent.asObservable();
+
+  async getAll(): Promise<TrackEntity[] | null> {
+    return this.repository.find();
   }
 
-  getById(id: string) {
-    const track = this.db.tracks.find((track) => track.id === id);
-    if (!track) {
+  async findOne(id: string): Promise<TrackEntity | null> {
+    return this.repository.findOneBy({ id });
+  }
+
+  async getById(id: string): Promise<TrackEntity | null> {
+    const trackById = await this.repository.findOneBy({ id });
+    if (!trackById) {
       throw new NotFoundException(`Track with id ${id} not exist`);
     }
-
-    return track;
-  }
-
-  create(createTrackDto: CreateTrackDto) {
-    const isExistArtist = this.db.checkEntity(
-      createTrackDto.artistId,
-      Entites.ARTISTS,
-    );
-    if (!isExistArtist && createTrackDto.artistId) {
-      throw new NotFoundException(
-        `Artist with id ${createTrackDto.artistId} not exist`,
-      );
-    }
-
-    const existAlbumId = this.db.checkEntity(
-      createTrackDto.albumId,
-      Entites.ALBUMS,
-    );
-    if (!existAlbumId && createTrackDto.albumId) {
-      throw new NotFoundException(
-        `Album with id ${createTrackDto.albumId} not exist`,
-      );
-    }
-
-    const track = new TrackEntity(createTrackDto);
-
-    this.db.tracks.push(track);
-    return track;
-  }
-
-  update(id: string, updateTrackDto: UpdateTrackDto) {
-    const trackById = this.getById(id);
-    const existArtistId = this.db.checkEntity(
-      updateTrackDto.artistId,
-      Entites.ARTISTS,
-    );
-    if (!existArtistId && updateTrackDto.artistId) {
-      throw new NotFoundException(
-        `the artist  ${updateTrackDto.artistId}does not exist`,
-      );
-    }
-
-    const existAlbumId = this.db.checkEntity(
-      updateTrackDto.albumId,
-      Entites.ALBUMS,
-    );
-    if (!existAlbumId && updateTrackDto.albumId) {
-      throw new NotFoundException(
-        `The album ${updateTrackDto.albumId} not exist`,
-      );
-    }
-
-    trackById.artistId = updateTrackDto.artistId;
-    trackById.albumId = updateTrackDto.albumId;
-    trackById.name = updateTrackDto.name;
-    trackById.duration = updateTrackDto.duration;
 
     return trackById;
   }
 
-  remove(id: string) {
-    const trackById = this.getById(id);
+  async create(createTrackDto: CreateTrackDto) {
+    const newTrack = new TrackEntity(createTrackDto as TrackEntity);
 
-    this.db.favorites.tracks = this.db.favorites.tracks.filter(
-      (track: TrackType) => track.id !== trackById.id,
-    );
+    validate(newTrack, { forbidUnknownValues: true });
 
-    this.db.tracks = this.db.tracks.filter((track) => track.id !== id);
+    return this.repository.save(newTrack);
+  }
+
+  async update(id: string, updateTrackDto: UpdateTrackDto) {
+    await this.getById(id);
+
+    return this.repository
+      .preload({ id, ...updateTrackDto } as DeepPartial<TrackEntity>)
+      .then((track) => {
+        return track ? this.repository.save(track) : track;
+      });
+  }
+
+  async remove(id: string) {
+    await this.getById(id);
+
+    return this.findOne(id).then(async (track) => {
+      this.deleteEvent.next(id);
+      return track ? !!(await this.repository.remove(track)) : false;
+    });
   }
 }
